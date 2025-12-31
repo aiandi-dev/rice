@@ -33,13 +33,13 @@ RICE_TOTAL_PHASES=9
 log_phase() {
   local name="$1"
   RICE_CURRENT_PHASE=$((RICE_CURRENT_PHASE + 1))
-  printf "\n${LOG_BLUE}[%d/%d]${LOG_RESET} %s\n" "$RICE_CURRENT_PHASE" "$RICE_TOTAL_PHASES" "$name"
+  printf "\n${LOG_BLUE}[%d/%d]${LOG_RESET} %s\n" "$RICE_CURRENT_PHASE" "$RICE_TOTAL_PHASES" "$name" >&2
 }
 
 # Log a step announcement (blue bullet)
 log_step() {
   local msg="$1"
-  printf "  ${LOG_BLUE}${SYM_BULLET}${LOG_RESET} %s\n" "$msg"
+  printf "  ${LOG_BLUE}${SYM_BULLET}${LOG_RESET} %s\n" "$msg" >&2
 }
 
 # Log success (green checkmark)
@@ -59,33 +59,33 @@ log_ok() {
     output+=" (${suffix})"
   fi
 
-  printf "%s\n" "$output"
+  printf "%s\n" "$output" >&2
 }
 
 # Log warning (yellow)
 log_warn() {
   local msg="$1"
-  printf "  ${LOG_YELLOW}${SYM_WARN}${LOG_RESET} %s\n" "$msg"
+  printf "  ${LOG_YELLOW}${SYM_WARN}${LOG_RESET} %s\n" "$msg" >&2
 }
 
 # Log error (red cross)
 log_error() {
   local msg="$1"
-  printf "  ${LOG_RED}${SYM_CROSS}${LOG_RESET} %s\n" "$msg"
+  printf "  ${LOG_RED}${SYM_CROSS}${LOG_RESET} %s\n" "$msg" >&2
 }
 
 # Log detail/verbose info (gray, indented)
 log_detail() {
   local msg="$1"
   if [[ "${RICE_VERBOSE:-0}" == "1" ]]; then
-    printf "    ${LOG_GRAY}%s${LOG_RESET}\n" "$msg"
+    printf "    ${LOG_GRAY}%s${LOG_RESET}\n" "$msg" >&2
   fi
 }
 
 # Log "installing now" indicator
 log_installing() {
   local component="$1"
-  printf "  ${SYM_BULLET} %s\n" "$component"
+  printf "  ${SYM_BULLET} %s\n" "$component" >&2
 }
 
 # Print self-contained error with recovery steps
@@ -97,19 +97,19 @@ log_error_box() {
   shift 3
   local recovery_steps=("$@")
 
-  printf "\n${LOG_RED}${SYM_CROSS} Failed: %s %s${LOG_RESET}\n\n" "$component" "$operation"
-  printf "  Error: %s\n" "$error_msg"
+  printf "\n${LOG_RED}${SYM_CROSS} Failed: %s %s${LOG_RESET}\n\n" "$component" "$operation" >&2
+  printf "  Error: %s\n" "$error_msg" >&2
 
   if [[ ${#recovery_steps[@]} -gt 0 ]]; then
-    printf "\n  Try:\n"
+    printf "\n  Try:\n" >&2
     local i=1
     for step in "${recovery_steps[@]}"; do
-      printf "    %d. %s\n" "$i" "$step"
+      printf "    %d. %s\n" "$i" "$step" >&2
       ((i++))
     done
   fi
 
-  printf "\n  If this persists, report: https://github.com/pentaxis93/rice/issues\n\n"
+  printf "\n  If this persists, report: https://github.com/pentaxis93/rice/issues\n\n" >&2
 }
 
 # Print installation summary box
@@ -119,14 +119,14 @@ log_summary() {
   local elapsed="$2"
   local failed="${3:-0}"
 
-  printf "\n"
+  printf "\n" >&2
   if [[ "$failed" -eq 0 ]]; then
-    printf "${LOG_GREEN}All %d components verified.${LOG_RESET}\n" "$total"
+    printf "${LOG_GREEN}All %d components verified.${LOG_RESET}\n" "$total" >&2
   else
     printf "${LOG_YELLOW}%d of %d components installed (%d failed).${LOG_RESET}\n" \
-      "$((total - failed))" "$total" "$failed"
+      "$((total - failed))" "$total" "$failed" >&2
   fi
-  printf "Completed in %s\n" "$elapsed"
+  printf "Completed in %s\n" "$elapsed" >&2
 }
 
 # Print compact phase status for re-runs
@@ -138,7 +138,7 @@ log_phase_compact() {
 
   # Pad phase name to 18 chars, right-pad counts for alignment
   printf "[%d/%d] %-18s ${LOG_GREEN}${SYM_CHECK}${LOG_RESET} (%2d/%-2d installed)\n" \
-    "$RICE_CURRENT_PHASE" "$RICE_TOTAL_PHASES" "$name" "$installed" "$total"
+    "$RICE_CURRENT_PHASE" "$RICE_TOTAL_PHASES" "$name" "$installed" "$total" >&2
   RICE_CURRENT_PHASE=$((RICE_CURRENT_PHASE + 1))
 }
 
@@ -147,9 +147,9 @@ log_header() {
   local version="$1"
   local first_run="${2:-false}"
 
-  printf "rice v%s\n" "$version"
+  printf "rice v%s\n" "$version" >&2
   if [[ "$first_run" == "true" ]]; then
-    printf "Your terminal, seasoned.\n"
+    printf "Your terminal, seasoned.\n" >&2
   fi
 }
 
@@ -160,10 +160,10 @@ log_interrupt() {
   local state_file="$3"
 
   printf "\n${LOG_YELLOW}Interrupted during [%d/%d] while installing %s${LOG_RESET}\n\n" \
-    "$RICE_CURRENT_PHASE" "$RICE_TOTAL_PHASES" "$tool"
-  printf "State saved: %s\n\n" "$state_file"
-  printf "To resume:      rice\n"
-  printf "To start fresh: rm %s && rice\n\n" "$state_file"
+    "$RICE_CURRENT_PHASE" "$RICE_TOTAL_PHASES" "$tool" >&2
+  printf "State saved: %s\n\n" "$state_file" >&2
+  printf "To resume:      rice\n" >&2
+  printf "To start fresh: rm %s && rice\n\n" "$state_file" >&2
 }
 
 # Print resume notification
@@ -172,6 +172,6 @@ log_resume() {
   local phase_name="$2"
 
   printf "${LOG_BLUE}Resuming from [%d/%d] %s...${LOG_RESET}\n" \
-    "$phase" "$RICE_TOTAL_PHASES" "$phase_name"
-  printf "State preserved from previous run.\n\n"
+    "$phase" "$RICE_TOTAL_PHASES" "$phase_name" >&2
+  printf "State preserved from previous run.\n\n" >&2
 }
