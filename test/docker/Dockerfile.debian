@@ -1,0 +1,42 @@
+# rice smoke test - Debian
+# Build: docker build -t rice-test -f test/docker/Dockerfile.debian .
+# Run:   docker run --rm rice-test
+
+FROM debian:bookworm-slim
+
+# Avoid prompts during package installation
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install minimal prerequisites
+RUN apt-get update && apt-get install -y \
+    curl \
+    ca-certificates \
+    sudo \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create test user with sudo access
+RUN useradd -m -s /bin/bash testuser && \
+    echo "testuser ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+
+# Switch to test user
+USER testuser
+WORKDIR /home/testuser
+
+# Copy rice installer
+COPY --chown=testuser:testuser . /home/testuser/rice/
+
+# Set environment for non-interactive installation
+ENV RICE_YES=1
+ENV RICE_SKIP_SHELL_CHANGE=1
+
+# Run installation
+RUN /home/testuser/rice/install.sh
+
+# Verify installation
+RUN /home/testuser/rice/bin/rice-doctor
+
+# Test idempotency (second run should be fast)
+RUN /home/testuser/rice/install.sh
+
+# Default command shows status
+CMD ["/home/testuser/rice/bin/rice-status"]
