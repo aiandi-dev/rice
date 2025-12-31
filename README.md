@@ -63,9 +63,8 @@ rice deploys configs to `~/.config/rice/`. Customize your shell in `~/.zshrc.loc
 
 ## Supported Platforms
 
-- **Debian 12+** (fully tested)
-- **Ubuntu 22.04+** (fully tested)
-- Fedora, Arch, macOS (planned)
+- **Debian 12+**
+- **Ubuntu 22.04+**
 
 ## Testing
 
