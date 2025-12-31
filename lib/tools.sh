@@ -563,16 +563,19 @@ install_opencode() {
   state_set_current_tool "opencode"
   log_installing "opencode"
 
-  ensure_go_path
-  if go install github.com/sst/opencode@latest 2>/dev/null; then
-    log_ok "opencode"
-    state_record_tool "opencode" "" "go"
+  # opencode uses its own installer script
+  export OPENCODE_INSTALL_DIR="${HOME}/.local/bin"
+  if run_upstream_installer "https://opencode.ai/install"; then
+    local version
+    version=$(opencode version 2>/dev/null | head -1)
+    log_ok "opencode" "$version"
+    state_record_tool "opencode" "$version" "upstream"
     state_clear_current_tool
     return 0
   fi
 
   log_error "Failed to install opencode"
-  state_record_tool_failed "opencode" "go install failed"
+  state_record_tool_failed "opencode" "installer failed"
   state_clear_current_tool
   return 1
 }
