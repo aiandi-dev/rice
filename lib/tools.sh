@@ -377,7 +377,7 @@ install_tmux() {
   return $result
 }
 
-# Install helix
+# Install helix (upstream doesn't publish checksums - download directly)
 install_helix() {
   if command -v hx &>/dev/null; then
     local version
@@ -386,14 +386,73 @@ install_helix() {
     return 0
   fi
 
-  # Helix binary installation
-  install_github_binary \
-    "helix-editor/helix" \
-    "helix" \
-    "helix-{VERSION}-{ARCH}-linux.tar.xz" \
-    "helix-{VERSION}-{ARCH}-linux.tar.xz.sha256" \
-    "hx" \
-    "hx"
+  state_set_current_tool "helix"
+  log_installing "helix"
+
+  # Get latest version
+  local version
+  version=$(get_latest_release "helix-editor/helix")
+  if [[ -z "$version" ]]; then
+    log_error "Could not determine latest helix version"
+    state_record_tool_failed "helix" "version lookup failed"
+    state_clear_current_tool
+    return 1
+  fi
+
+  local archive="helix-${version}-${RICE_ARCH}-linux.tar.xz"
+  local url="https://github.com/helix-editor/helix/releases/download/${version}/${archive}"
+
+  # Download (helix doesn't publish checksums)
+  local tmp_archive
+  tmp_archive=$(mktemp)
+  if ! download_file "$url" "$tmp_archive"; then
+    rm -f "$tmp_archive"
+    state_record_tool_failed "helix" "download failed"
+    state_clear_current_tool
+    return 1
+  fi
+
+  # Extract
+  local extract_dir
+  extract_dir=$(mktemp -d)
+  if ! tar -xJf "$tmp_archive" -C "$extract_dir"; then
+    log_error "Failed to extract helix archive"
+    rm -rf "$tmp_archive" "$extract_dir"
+    state_record_tool_failed "helix" "extraction failed"
+    state_clear_current_tool
+    return 1
+  fi
+  rm -f "$tmp_archive"
+
+  # Install binary
+  local hx_binary
+  hx_binary=$(find "$extract_dir" -name "hx" -type f 2>/dev/null | head -1)
+  if [[ -z "$hx_binary" ]]; then
+    log_error "hx binary not found in archive"
+    rm -rf "$extract_dir"
+    state_record_tool_failed "helix" "binary not found"
+    state_clear_current_tool
+    return 1
+  fi
+
+  mkdir -p "${HOME}/.local/bin"
+  cp "$hx_binary" "${HOME}/.local/bin/hx"
+  chmod +x "${HOME}/.local/bin/hx"
+
+  # Install runtime (required for helix to function)
+  local runtime_dir
+  runtime_dir=$(find "$extract_dir" -type d -name "runtime" 2>/dev/null | head -1)
+  if [[ -n "$runtime_dir" ]]; then
+    mkdir -p "${HOME}/.config/helix"
+    rm -rf "${HOME}/.config/helix/runtime"
+    cp -r "$runtime_dir" "${HOME}/.config/helix/"
+  fi
+
+  rm -rf "$extract_dir"
+
+  log_ok "helix" "$version"
+  state_record_tool "helix" "$version" "binary"
+  state_clear_current_tool
 }
 
 # Install lazygit
@@ -408,13 +467,13 @@ install_lazygit() {
   install_github_binary \
     "jesseduffield/lazygit" \
     "lazygit" \
-    "lazygit_{VERSION}_Linux_{ARCH}.tar.gz" \
+    "lazygit_{VERSION}_linux_{ARCH}.tar.gz" \
     "checksums.txt" \
     "lazygit" \
     "lazygit"
 }
 
-# Install delta
+# Install delta (git-delta via cargo - upstream doesn't publish checksums)
 install_delta() {
   if command -v delta &>/dev/null; then
     local version
@@ -423,13 +482,23 @@ install_delta() {
     return 0
   fi
 
-  install_github_binary \
-    "dandavison/delta" \
-    "delta" \
-    "delta-{VERSION}-{ARCH}-unknown-linux-gnu.tar.gz" \
-    "delta-{VERSION}-{ARCH}-unknown-linux-gnu.tar.gz.sha256" \
-    "delta" \
-    "delta"
+  state_set_current_tool "delta"
+  log_installing "delta"
+
+  ensure_cargo_path
+  if cargo install git-delta 2>/dev/null; then
+    local version
+    version=$(delta --version 2>/dev/null | awk '{print $2}')
+    log_ok "delta" "$version"
+    state_record_tool "delta" "$version" "cargo"
+    state_clear_current_tool
+    return 0
+  fi
+
+  log_error "Failed to install delta"
+  state_record_tool_failed "delta" "cargo install failed"
+  state_clear_current_tool
+  return 1
 }
 
 # Install GitHub CLI
