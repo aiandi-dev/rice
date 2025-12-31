@@ -1,7 +1,6 @@
 # rice-managed - https://github.com/pentaxis93/rice
-# Powerlevel10k Configuration (based on ACFS lean style)
+# Powerlevel10k Configuration
 # Style: Lean (clean, no background colors)
-# Based on official p10k-lean.zsh with ACFS-friendly defaults
 # To customize further: p10k configure
 
 # Temporarily change options
