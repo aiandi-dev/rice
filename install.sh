@@ -355,6 +355,8 @@ main() {
       if is_complete_installation && [[ "${RICE_FIRST_RUN:-}" != "true" ]]; then
         state_init  # Need to init to check first run
         if [[ "$RICE_FIRST_RUN" != "true" ]]; then
+          # Always sync configs even on re-run
+          deploy_configs
           run_compact_check
           exit 0
         fi
