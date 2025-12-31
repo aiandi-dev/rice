@@ -1,0 +1,121 @@
+# rice lf config - managed by rice
+# https://github.com/pentaxis93/rice
+
+# Basic settings
+set hidden true
+set ignorecase true
+set icons false
+set preview true
+set drawbox true
+set ratios 1:2:3
+set scrolloff 10
+set shell bash
+set shellopts '-eu'
+set ifs "\n"
+
+# Custom previewer using bat if available
+set previewer ~/.config/lf/preview.sh
+
+# Delete with confirmation
+cmd delete ${{
+    set -f
+    printf "$fx\n"
+    printf "delete? [y/n] "
+    read ans
+    [ "$ans" = "y" ] && rm -rf $fx
+}}
+
+# Move to trash (if trash-cli is available)
+cmd trash ${{
+    set -f
+    if command -v trash-put &>/dev/null; then
+        trash-put $fx
+    else
+        mkdir -p ~/.trash
+        mv $fx ~/.trash
+    fi
+}}
+
+# Create directory
+cmd mkdir ${{
+    printf "Directory name: "
+    read ans
+    mkdir -p "$ans"
+}}
+
+# Create file
+cmd touch ${{
+    printf "File name: "
+    read ans
+    touch "$ans"
+}}
+
+# Extract archives
+cmd extract ${{
+    set -f
+    if command -v atool &>/dev/null; then
+        atool -x $f
+    else
+        case $f in
+            *.tar.bz2)   tar xjf $f   ;;
+            *.tar.gz)    tar xzf $f   ;;
+            *.tar.xz)    tar xJf $f   ;;
+            *.bz2)       bunzip2 $f   ;;
+            *.rar)       unrar x $f   ;;
+            *.gz)        gunzip $f    ;;
+            *.tar)       tar xf $f    ;;
+            *.tbz2)      tar xjf $f   ;;
+            *.tgz)       tar xzf $f   ;;
+            *.zip)       unzip $f     ;;
+            *.Z)         uncompress $f;;
+            *.7z)        7z x $f      ;;
+            *)           echo "Cannot extract '$f'" ;;
+        esac
+    fi
+}}
+
+# Compress files
+cmd tar ${{
+    set -f
+    mkdir $1
+    cp -r $fx $1
+    tar czf $1.tar.gz $1
+    rm -rf $1
+}}
+
+cmd zip ${{
+    set -f
+    mkdir $1
+    cp -r $fx $1
+    zip -r $1.zip $1
+    rm -rf $1
+}}
+
+# Open with editor
+cmd edit $$EDITOR $f
+
+# Key mappings
+map <enter> open
+map d
+map dd trash
+map dD delete
+map . set hidden!
+map m
+map md mkdir
+map mf touch
+map x extract
+map r rename
+map R reload
+map e edit
+map H top
+map L bottom
+map <c-l> redraw
+
+# Bookmarks
+map gh cd ~
+map gc cd ~/.config
+map gd cd ~/Downloads
+map gp cd ~/projects
+
+# Show file info
+map i $~/.config/lf/preview.sh $f | less -R

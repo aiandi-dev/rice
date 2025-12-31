@@ -1,0 +1,78 @@
+# rice helix config - managed by rice
+# https://github.com/pentaxis93/rice
+
+theme = "catppuccin_mocha"
+
+[editor]
+line-number = "relative"
+mouse = true
+bufferline = "multiple"
+color-modes = true
+true-color = true
+rulers = [80, 120]
+idle-timeout = 50
+completion-trigger-len = 1
+
+[editor.cursor-shape]
+insert = "bar"
+normal = "block"
+select = "underline"
+
+[editor.file-picker]
+hidden = false
+git-ignore = true
+git-global = true
+
+[editor.lsp]
+display-messages = true
+display-inlay-hints = true
+
+[editor.indent-guides]
+render = true
+character = "│"
+
+[editor.statusline]
+left = ["mode", "spinner", "file-name", "file-modification-indicator"]
+center = []
+right = ["diagnostics", "selections", "register", "position", "file-encoding", "file-line-ending", "file-type"]
+separator = "│"
+mode.normal = "NORMAL"
+mode.insert = "INSERT"
+mode.select = "SELECT"
+
+[editor.whitespace.render]
+tab = "all"
+newline = "none"
+
+[editor.soft-wrap]
+enable = true
+wrap-at-text-width = true
+
+[keys.normal]
+# Quick save
+"C-s" = ":w"
+
+# Buffer navigation
+"C-h" = "jump_view_left"
+"C-j" = "jump_view_down"
+"C-k" = "jump_view_up"
+"C-l" = "jump_view_right"
+
+# Tab/buffer switching
+"H" = "goto_previous_buffer"
+"L" = "goto_next_buffer"
+
+# Center after navigation
+"n" = ["search_next", "align_view_center"]
+"N" = ["search_prev", "align_view_center"]
+
+# File picker
+"C-p" = "file_picker"
+"C-b" = "buffer_picker"
+
+[keys.insert]
+# Quick escape
+"j" = { k = "normal_mode" }
+
+# Save from insert mode
+"C-s" = ["normal_mode", ":w"]

@@ -1,0 +1,29 @@
+
+  ╭──────────────────────────────────────────────────╮
+  │                                                  │
+  │   Welcome to your new terminal environment!     │
+  │                                                  │
+  │   Installed by rice - https://git.io/rice       │
+  │                                                  │
+  ├──────────────────────────────────────────────────┤
+  │                                                  │
+  │   Quick tips:                                    │
+  │                                                  │
+  │   • ls/ll/la  - List files (using lsd)          │
+  │   • cat       - View files (using bat)          │
+  │   • z <dir>   - Jump to directory (zoxide)      │
+  │   • Ctrl+R    - Search history (atuin)          │
+  │   • hx        - Edit files (helix)              │
+  │   • lg        - Git TUI (lazygit)               │
+  │   • lf        - File manager                    │
+  │                                                  │
+  │   Commands:                                      │
+  │                                                  │
+  │   • rice doctor  - Check installation health    │
+  │   • rice status  - Show installed components    │
+  │   • rice         - Update/repair installation   │
+  │                                                  │
+  │   Customize in ~/.zshrc.local                   │
+  │                                                  │
+  ╰──────────────────────────────────────────────────╯
+

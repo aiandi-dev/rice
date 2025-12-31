@@ -1,0 +1,64 @@
+# rice gitconfig - managed by rice
+# https://github.com/pentaxis93/rice
+# Include in your ~/.gitconfig with:
+#   [include]
+#       path = ~/.config/rice/gitconfig
+
+[core]
+    pager = delta
+
+[interactive]
+    diffFilter = delta --color-only
+
+[delta]
+    navigate = true
+    side-by-side = false
+    line-numbers = true
+    syntax-theme = Catppuccin Mocha
+
+[merge]
+    conflictstyle = diff3
+
+[diff]
+    colorMoved = default
+
+[alias]
+    # Status
+    s = status -sb
+
+    # Logging
+    lg = log --oneline --graph --decorate -20
+    ll = log --oneline --graph --decorate
+    last = log -1 HEAD --stat
+
+    # Branching
+    co = checkout
+    cb = checkout -b
+    branches = branch -a
+    remotes = remote -v
+
+    # Staging
+    aa = add --all
+    ap = add --patch
+
+    # Committing
+    cm = commit -m
+    ca = commit --amend
+    can = commit --amend --no-edit
+
+    # Diffing
+    d = diff
+    ds = diff --staged
+    dw = diff --word-diff
+
+    # Stashing
+    sl = stash list
+    sp = stash pop
+    ss = stash save
+
+    # Cleanup
+    prune-branches = "!git branch --merged | grep -v '\\*\\|main\\|master' | xargs -n 1 git branch -d"
+
+    # Undo
+    undo = reset HEAD~1 --mixed
+    unstage = reset HEAD --
