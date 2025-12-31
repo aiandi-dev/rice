@@ -41,7 +41,7 @@
   )
 
   # Basic settings
-  typeset -g POWERLEVEL9K_MODE=ascii
+  typeset -g POWERLEVEL9K_MODE=nerdfont-v3
   typeset -g POWERLEVEL9K_PROMPT_ON_NEWLINE=false
   typeset -g POWERLEVEL9K_RPROMPT_ON_NEWLINE=false
   typeset -g POWERLEVEL9K_PROMPT_ADD_NEWLINE=true
