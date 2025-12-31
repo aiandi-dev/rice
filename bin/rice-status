@@ -1,0 +1,122 @@
+#!/usr/bin/env bash
+# rice-status - show installed components
+set -euo pipefail
+
+# Find rice installation
+if [[ -n "${RICE_INSTALL_DIR:-}" ]]; then
+  RICE_DIR="$RICE_INSTALL_DIR"
+elif [[ -f "${HOME}/.cache/rice/installer/VERSION" ]]; then
+  RICE_DIR="${HOME}/.cache/rice/installer"
+elif [[ -f "$(dirname "$0")/../VERSION" ]]; then
+  RICE_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+else
+  echo "Error: Could not find rice installation"
+  exit 1
+fi
+
+# Source libraries
+source "${RICE_DIR}/lib/log.sh"
+source "${RICE_DIR}/lib/state.sh"
+
+RICE_VERSION="$(cat "${RICE_DIR}/VERSION" 2>/dev/null || echo "dev")"
+STATE_FILE="${HOME}/.config/rice/state.json"
+
+echo "rice status"
+echo "==========="
+echo ""
+
+echo "Version: ${RICE_VERSION}"
+echo "State:   ${STATE_FILE}"
+
+if [[ ! -f "$STATE_FILE" ]]; then
+  echo ""
+  echo "No state file found. Run 'rice' to install."
+  exit 1
+fi
+
+# Parse state file
+if command -v jq &>/dev/null; then
+  LAST_RUN=$(jq -r '.last_run // "unknown"' "$STATE_FILE" 2>/dev/null)
+  INSTALLED=$(jq '[.tools | to_entries[] | select(.value.installed == true)] | length' "$STATE_FILE" 2>/dev/null)
+  FAILED=$(jq '[.tools | to_entries[] | select(.value.installed == false)] | length' "$STATE_FILE" 2>/dev/null)
+else
+  LAST_RUN="(jq not installed)"
+  INSTALLED="?"
+  FAILED="?"
+fi
+
+echo "Last run: ${LAST_RUN}"
+echo ""
+
+echo "Summary"
+echo "-------"
+echo "Installed: ${INSTALLED}"
+echo "Failed:    ${FAILED}"
+echo ""
+
+echo "Managed Configs"
+echo "---------------"
+
+configs=(
+  "${HOME}/.config/rice/zshrc:zshrc"
+  "${HOME}/.p10k.zsh:p10k.zsh"
+  "${HOME}/.config/rice/aliases.sh:aliases.sh"
+  "${HOME}/.config/rice/tmux.conf:tmux.conf"
+  "${HOME}/.config/helix/config.toml:helix/config.toml"
+  "${HOME}/.config/lf/lfrc:lf/lfrc"
+  "${HOME}/.config/rice/gitconfig:gitconfig"
+)
+
+for config_info in "${configs[@]}"; do
+  path="${config_info%%:*}"
+  name="${config_info##*:}"
+
+  if [[ -f "$path" ]]; then
+    printf "  ${LOG_GREEN}${SYM_CHECK}${LOG_RESET} %s\n" "$name"
+  else
+    printf "  ${LOG_GRAY}- %s${LOG_RESET}\n" "$name"
+  fi
+done
+
+echo ""
+echo "Installed Tools"
+echo "---------------"
+
+# Show tools with versions
+tools=(
+  "zsh:zsh --version"
+  "cargo:cargo --version"
+  "go:go version"
+  "bun:bun --version"
+  "uv:uv --version"
+  "rg:rg --version"
+  "fd:fd --version"
+  "bat:bat --version"
+  "lsd:lsd --version"
+  "fzf:fzf --version"
+  "zoxide:zoxide --version"
+  "atuin:atuin --version"
+  "jq:jq --version"
+  "sg:sg --version"
+  "tmux:tmux -V"
+  "hx:hx --version"
+  "lazygit:lazygit --version"
+  "delta:delta --version"
+  "lf:lf --version"
+  "gh:gh --version"
+)
+
+for tool_info in "${tools[@]}"; do
+  cmd="${tool_info%%:*}"
+  version_cmd="${tool_info##*:}"
+
+  if command -v "$cmd" &>/dev/null; then
+    version=$(eval "$version_cmd" 2>/dev/null | head -1 | grep -oE '[0-9]+\.[0-9]+(\.[0-9]+)?' | head -1 || echo "installed")
+    printf "  ${LOG_GREEN}${SYM_CHECK}${LOG_RESET} %-12s %s\n" "$cmd" "$version"
+  else
+    printf "  ${LOG_GRAY}- %-12s not installed${LOG_RESET}\n" "$cmd"
+  fi
+done
+
+echo ""
+echo "Run 'rice doctor' for detailed health check."

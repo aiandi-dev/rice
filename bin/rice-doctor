@@ -1,0 +1,163 @@
+#!/usr/bin/env bash
+# rice-doctor - check installation health
+set -euo pipefail
+
+# Find rice installation
+if [[ -n "${RICE_INSTALL_DIR:-}" ]]; then
+  RICE_DIR="$RICE_INSTALL_DIR"
+elif [[ -f "${HOME}/.cache/rice/installer/VERSION" ]]; then
+  RICE_DIR="${HOME}/.cache/rice/installer"
+elif [[ -f "$(dirname "$0")/../VERSION" ]]; then
+  RICE_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+else
+  echo "Error: Could not find rice installation"
+  exit 1
+fi
+
+# Source libraries
+source "${RICE_DIR}/lib/log.sh"
+source "${RICE_DIR}/lib/state.sh"
+
+echo "rice doctor"
+echo "==========="
+echo ""
+
+CHECKS_PASSED=0
+CHECKS_FAILED=0
+
+check() {
+  local name="$1"
+  local result="$2"
+
+  if [[ "$result" == "pass" ]]; then
+    printf "  ${LOG_GREEN}${SYM_CHECK}${LOG_RESET} %s\n" "$name"
+    ((CHECKS_PASSED++))
+  else
+    printf "  ${LOG_RED}${SYM_CROSS}${LOG_RESET} %s\n" "$name"
+    ((CHECKS_FAILED++))
+  fi
+}
+
+check_cmd() {
+  local name="$1"
+  local cmd="$2"
+
+  if command -v "$cmd" &>/dev/null; then
+    check "$name" "pass"
+  else
+    check "$name" "fail"
+  fi
+}
+
+check_file() {
+  local name="$1"
+  local path="$2"
+
+  if [[ -f "$path" ]]; then
+    check "$name" "pass"
+  else
+    check "$name" "fail"
+  fi
+}
+
+check_dir() {
+  local name="$1"
+  local path="$2"
+
+  if [[ -d "$path" ]]; then
+    check "$name" "pass"
+  else
+    check "$name" "fail"
+  fi
+}
+
+echo "Prerequisites"
+check_cmd "git" "git"
+check_cmd "curl" "curl"
+check_cmd "gcc" "gcc"
+check_cmd "unzip" "unzip"
+echo ""
+
+echo "Runtimes"
+check_cmd "cargo" "cargo"
+check_cmd "go" "go"
+check_cmd "bun" "bun"
+check_cmd "uv" "uv"
+echo ""
+
+echo "Shell"
+check_cmd "zsh" "zsh"
+check_dir "oh-my-zsh" "${HOME}/.oh-my-zsh"
+check_dir "powerlevel10k" "${HOME}/.oh-my-zsh/custom/themes/powerlevel10k"
+check_dir "zsh-autosuggestions" "${HOME}/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
+check_dir "zsh-syntax-highlighting" "${HOME}/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting"
+check_cmd "direnv" "direnv"
+echo ""
+
+echo "CLI Tools"
+check_cmd "fd" "fd"
+check_cmd "ripgrep (rg)" "rg"
+check_cmd "bat" "bat"
+check_cmd "lsd" "lsd"
+check_cmd "fzf" "fzf"
+check_cmd "zoxide" "zoxide"
+check_cmd "atuin" "atuin"
+check_cmd "jq" "jq"
+check_cmd "ast-grep (sg)" "sg"
+echo ""
+
+echo "Developer Tools"
+check_cmd "tmux" "tmux"
+check_cmd "helix (hx)" "hx"
+check_cmd "lazygit" "lazygit"
+check_cmd "delta" "delta"
+check_cmd "gh" "gh"
+check_cmd "git-lfs" "git-lfs"
+echo ""
+
+echo "File Management"
+check_cmd "lf" "lf"
+check_cmd "tree" "tree"
+check_cmd "trash-put" "trash-put"
+check_cmd "atool" "atool"
+check_cmd "7z" "7z"
+echo ""
+
+echo "System Utilities"
+check_cmd "rsync" "rsync"
+check_cmd "lsof" "lsof"
+check_cmd "htop" "htop"
+check_cmd "ncdu" "ncdu"
+echo ""
+
+echo "Infrastructure"
+check_cmd "tailscale" "tailscale"
+echo ""
+
+echo "Configuration"
+check_file "rice zshrc" "${HOME}/.config/rice/zshrc"
+check_file "p10k config" "${HOME}/.p10k.zsh"
+check_file "aliases" "${HOME}/.config/rice/aliases.sh"
+check_file "tmux config" "${HOME}/.config/rice/tmux.conf"
+check_file "helix config" "${HOME}/.config/helix/config.toml"
+check_file "lf config" "${HOME}/.config/lf/lfrc"
+echo ""
+
+echo "State"
+check_file "state.json" "${HOME}/.config/rice/state.json"
+check_dir "backups dir" "${HOME}/.config/rice/backups"
+echo ""
+
+# Summary
+echo "==========="
+TOTAL=$((CHECKS_PASSED + CHECKS_FAILED))
+
+if [[ $CHECKS_FAILED -eq 0 ]]; then
+  echo "${LOG_GREEN}All ${TOTAL} checks passed.${LOG_RESET} Your environment is healthy."
+  exit 0
+else
+  echo "${LOG_YELLOW}${CHECKS_PASSED}/${TOTAL} checks passed, ${CHECKS_FAILED} failed.${LOG_RESET}"
+  echo ""
+  echo "Run 'rice' to repair your installation."
+  exit 1
+fi
