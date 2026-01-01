@@ -20,7 +20,7 @@ One command sets up a complete modern shell environment: zsh with sane defaults,
 ## Tech Stack
 
 - **Language:** Bash (POSIX-compatible where possible)
-- **Target OS:** Debian (planned: additional Linux distros)
+- **Target OS:** Debian
 - **Package Sources:** OS-native first (apt), then upstream installers (curl | bash)
 - **Config Location:** `~/.config/rice/` (XDG-compliant)
 
@@ -47,11 +47,7 @@ install_ripgrep() {
   fi
 
   log_step "Installing ripgrep..."
-  case "$RICE_OS" in
-    debian|ubuntu) sudo apt-get install -y ripgrep ;;
-    *)             log_error "Unsupported OS: $RICE_OS"; return 1 ;;
-  esac
-
+  apt_install "ripgrep" "ripgrep"
   log_ok "ripgrep installed"
 }
 ```
@@ -137,5 +133,5 @@ Longer explanation if needed.
 2. **Idempotent** — Every operation must be safe to repeat
 3. **No interaction** — Must work with `RICE_YES=1` escape hatch
 4. **Check before install** — Never blindly reinstall
-5. **OS-native packages preferred** — apt/dnf/pacman before cargo/npm
+5. **OS-native packages preferred** — apt before cargo/npm
 6. **No security vulnerabilities** — Validate inputs, no command injection
