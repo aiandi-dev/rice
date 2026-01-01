@@ -21,9 +21,9 @@ Keep this managed block so 'openspec update' can refresh the instructions.
 
 ## Project Overview
 
-**rice** is an opinionated terminal environment installer for headless servers. One command sets up a complete modern shell environment.
+**rice** is an opinionated terminal environment installer for servers and workstations. One command sets up a complete modern shell environment.
 
-Target: VPS and server environments where you SSH in and want to get to work.
+Target: VPS/server environments, or desktop workstations where a focused CLI workflow is desired.
 
 Currently supports: Debian  
 Planned: Multi-OS (Ubuntu, Fedora, Arch, macOS)
