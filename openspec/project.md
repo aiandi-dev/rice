@@ -2,9 +2,9 @@
 
 ## Purpose
 
-**rice** is an opinionated terminal environment installer for headless servers.
+**rice** is an opinionated terminal environment installer for servers and workstations.
 
-One command sets up a complete modern shell environment: zsh with sane defaults, a fast prompt, and CLI tools that replace rusty coreutils. Designed for VPS environments where you SSH in and want to get to work.
+One command sets up a complete modern shell environment: zsh with sane defaults, a fast prompt, and CLI tools that replace rusty coreutils. Designed for VPS environments where you SSH in, or for unifying your workflow across local machines.
 
 **Goals:**
 - Zero-config productivity out of the box
@@ -129,7 +129,7 @@ Longer explanation if needed.
 - `RICE_SKIP_SHELL_CHANGE=1` — Don't change default shell to zsh
 - `GITHUB_TOKEN` — Authenticate GitHub API requests (avoids rate limits)
 
-**Target user:** Developer who SSHs into VPS/servers and wants a productive terminal immediately.
+**Target user:** Developer who wants a productive, zero-config terminal environment immediately, whether on a remote VPS or local machine.
 
 ## Important Constraints
 
