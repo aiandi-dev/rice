@@ -54,6 +54,16 @@ The system SHALL use the base16 color architecture with 16 semantic color slots.
   - `BASE0E` - Purple (keywords)
   - `BASE0F` - Brown (deprecated, embedded)
 
+#### Scenario: Semantic aliases
+- **WHEN** a theme is loaded
+- **THEN** the following semantic aliases SHOULD be defined for convenience:
+  - `RICE_BG` - Maps to `BASE01` (lighter background for status bars)
+  - `RICE_FG` - Maps to `BASE05` (default foreground)
+  - `RICE_ACCENT` - Maps to `BASE0D` (blue for accents)
+  - `RICE_SUCCESS` - Maps to `BASE0B` (green)
+  - `RICE_WARNING` - Maps to `BASE09` (orange)
+  - `RICE_ERROR` - Maps to `BASE08` (red)
+
 #### Scenario: Color format
 - **WHEN** colors are defined
 - **THEN** use 6-digit hex format without hash (e.g., `1a1b26`)
