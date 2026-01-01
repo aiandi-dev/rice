@@ -63,30 +63,30 @@ The keystone release that makes everything else possible.
 
 ### v0.6.0 - Platform Expansion
 
-- Ubuntu support
-- Fedora support
-- Arch support
+- Expand beyond Debian to other Linux distributions
+- 具体发行版将在实现时确定
 
-### v0.7.0 - macOS Support
-
-- Homebrew-based installation
-- iTerm2/Terminal.app color scheme export
-
-### v0.8.0 - Polish & Refinement
+### v0.7.0 - Export & Import
 
 - `rice export` - export your config as shareable dotfiles
 - `rice import` - import someone else's rice
 - Theme preview in terminal
 
-### v0.9.0 - Community & Docs
+### v0.8.0 - Community & Docs
 
 - Theme gallery/contribution system
 - Full documentation site
 
+### v0.9.0 - Stabilization
+
+- API freeze for v1.0.0
+- Bug fixes and polish
+- Performance optimization
+
 ### v1.0.0 - MVP Terminal Ricer
 
 - Stable API
-- All platforms working
+- Multi-platform Linux support
 - The promise delivered: one command, beautiful terminal
 
 ---
