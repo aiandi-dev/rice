@@ -12,7 +12,7 @@ new capabilities, breaking changes, or architecture shifts.
 **rice** is an opinionated terminal environment installer for servers and workstations. One command sets up a complete modern shell environment with zsh, modern CLI tools, and sensible configs.
 
 - Target: VPS/server environments, desktop workstations
-- Currently supports: Debian | Planned: Ubuntu, Fedora, Arch, macOS
+- Currently supports: Debian
 
 ## Build/Lint/Test Commands
 

@@ -25,8 +25,7 @@ Keep this managed block so 'openspec update' can refresh the instructions.
 
 Target: VPS/server environments, or desktop workstations where a focused CLI workflow is desired.
 
-Currently supports: Debian  
-Planned: Multi-OS (Ubuntu, Fedora, Arch, macOS)
+Currently supports: Debian
 
 ## Philosophy
 
@@ -108,14 +107,7 @@ install_ripgrep() {
   fi
 
   log_step "Installing ripgrep..."
-  case "$RICE_OS" in
-    debian|ubuntu) sudo apt-get install -y ripgrep ;;
-    fedora)        sudo dnf install -y ripgrep ;;
-    arch)          sudo pacman -S --noconfirm ripgrep ;;
-    macos)         brew install ripgrep ;;
-    *)             log_error "Unsupported OS: $RICE_OS"; return 1 ;;
-  esac
-
+  apt_install "ripgrep" "ripgrep"
   log_ok "ripgrep installed"
 }
 ```
